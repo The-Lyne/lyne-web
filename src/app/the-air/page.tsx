@@ -1,9 +1,8 @@
 "use client";
-
-import Link from "next/link";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
-const COLORS = [
+const UPHOLSTERY = [
   { name: "Ivory",    hex: "#E8E4DC" },
   { name: "Stone",    hex: "#C8C0B4" },
   { name: "Obsidian", hex: "#1A1A1A" },
@@ -11,298 +10,321 @@ const COLORS = [
   { name: "Dusk",     hex: "#4A4558" },
 ];
 
-const FRAMES = [
-  { name: "Matte Black",      delta: 0 },
-  { name: "Brushed Steel",    delta: 2500 },
-  { name: "Powder Coat Sand", delta: 2500 },
+const MOVEMENTS = [
+  { name: "Footwork",      desc: "Elastic resistance creates smooth, progressive load from retraction through full extension. Five band levels let beginners and advanced practitioners work on the same machine." },
+  { name: "Core Series",   desc: "Hundreds, single-leg stretch, criss-cross — elastic tension holds consistent throughout spinal articulation. Better for neutral spine work than motor resistance." },
+  { name: "Hip Work",      desc: "Circles, frogs, walking, beats. Spring tension at the end-range makes hip mobility work genuinely resisted — not just bodyweight." },
+  { name: "Arm Work",      desc: "12 anchor positions for straps and push-through bar. Band resistance works bi-directionally — same load on push as on pull." },
+  { name: "Long Stretch",  desc: "Full posterior chain under spring tension. The Air's elastic resistance naturally decelerates the carriage — joint-protective at every extension point." },
+  { name: "Back Rowing",   desc: "The most complete back-of-body sequence in classical Pilates. Elastic springs provide the ideal resistance curve for rowing movements." },
+  { name: "Side-Lying",    desc: "Hip abduction, inner thigh, glute med in full lateral chain range. Elastic bands provide perfectly graduated lateral resistance." },
+  { name: "Elephant",      desc: "Deep hamstring lengthening and spinal decompression under load. The spring system decelerates naturally — making this safe, even under significant stretch." },
 ];
 
-const BUNDLES = [
-  { id: "standard", label: "Standard",      base: 45000,  desc: "Machine + elastic bands + straps" },
-  { id: "studio",   label: "Studio Bundle", base: 58000,  desc: "Adds short box, balance disc, and premium band set" },
+const MATERIALS = [
+  {
+    label: "Frame",
+    material: "Anodized aluminum",
+    spec: "Extruded profile — 3 finishes",
+    desc: "Extruded 6061 aluminum profile, hard-anodized to 25 micron depth. Lighter than steel, stronger per kilo. Dimensional tolerance ±0.8mm. Powder-coated in three finishes, or left in brushed natural aluminum.",
+  },
+  {
+    label: "Carriage",
+    material: "Precision-machined aluminum",
+    spec: "4-wheel sealed — stainless guides",
+    desc: "CNC-machined carriage running on four sealed-bearing precision wheels and four stainless steel rails. Silent at all resistance levels. Friction-free. Requires no maintenance and no lubrication.",
+  },
+  {
+    label: "Upholstery",
+    material: "Full-grain leather",
+    spec: "5cm high-density foam",
+    desc: "Top-layer full-grain hide — breathable, durable, and does not crack under consistent use. The same grade specified for premium furniture. Five colorways, cut and stitched to order.",
+  },
+  {
+    label: "Springs",
+    material: "Tempered steel",
+    spec: "5-spring system — 4 resistance levels",
+    desc: "Five individually tempered steel springs with color-coded resistance levels: extra-light, light, medium, heavy, extra-heavy. Interchangeable. Individually replaceable. Consistent resistance profile over the full travel arc.",
+  },
 ];
 
 const SPECS: [string, string][] = [
-  ["Length",           "2,200mm"],
-  ["Width",            "620mm"],
-  ["Height",           "290mm (carriage)"],
-  ["Weight",           "68kg"],
-  ["Resistance",       "Elastic band system, 5 levels"],
-  ["Band positions",   "12 anchor points"],
-  ["Upholstery",       "Full-grain leather, 5cm foam"],
-  ["Max load",         "160kg"],
-  ["Connectivity",     "Not required"],
+  ["Dimensions",      "1,360 × 640 × 380mm"],
+  ["Machine weight",  "44kg"],
+  ["Resistance",      "5-spring elastic system — 4 levels"],
+  ["Spring count",    "5 tempered steel springs"],
+  ["Band positions",  "12 anchor points"],
+  ["Carriage travel", "870mm"],
+  ["Upholstery",      "Full-grain leather, 5cm high-density foam"],
+  ["Frame",           "Anodized aluminum extrusion"],
+  ["Rails",           "Stainless steel — 4-wheel sealed carriage"],
+  ["Max load",        "120kg"],
+  ["Connectivity",    "Optional — Lyne App"],
+  ["Power required",  "None"],
 ];
 
 const FAQS = [
-  { id: "delivery", title: "Delivery & Installation", body: "White-glove delivery to Greater Cairo and Alexandria. Our team assembles and positions the machine in your preferred room. Delivery within 7–10 business days of order confirmation." },
-  { id: "warranty", title: "Warranty", body: "2-year warranty on frame and mechanical components. 1-year on upholstery and elastic bands. Bands are replaceable — our team comes to you." },
-  { id: "payment",  title: "Payment", body: "Pay in full by card or bank transfer. Instalment options via Sympl — up to 12 months, 0% for the first 3. A 30% deposit secures your order and production slot." },
-  { id: "space",    title: "Space Requirements", body: "Minimum recommended room footprint: 2.5m × 4.5m. The Air is our most space-efficient machine. Free space consultation available before purchase." },
+  { id: "delivery", title: "Delivery & Installation",    body: "White-glove delivery to Greater Cairo and Alexandria. Our team assembles and positions The Air in your preferred room. Delivery within 7–10 business days of order confirmation." },
+  { id: "warranty", title: "Warranty",                   body: "2-year warranty on frame and mechanical components. 1-year on upholstery and elastic bands. Springs are individually replaceable — our team comes to you, always." },
+  { id: "payment",  title: "Payment & Instalments",      body: "Pay in full by card or bank transfer. Instalment options via Sympl — up to 12 months, 0% interest for the first 3. A 30% deposit secures your order and production slot." },
+  { id: "space",    title: "Space Requirements",         body: "Minimum recommended room footprint: 2.5m × 4.5m. The Air is the most space-efficient reformer in our range. A free space consultation is available before you commit." },
+  { id: "compare",  title: "The Air vs. The Pro",        body: "The Air uses a 5-spring elastic resistance system — lighter, quieter, no power required. The Pro uses an adaptive motor with digital resistance control and Lyne app integration. Both are built to the same material and construction standard." },
 ];
 
-function fmt(n: number) {
-  return "EGP " + n.toLocaleString("en-EG");
-}
+function fmt(n: number) { return "EGP " + n.toLocaleString(); }
 
-function AirSVG() {
+function AirSVG({ colorHex }: { colorHex: string }) {
   return (
-    <svg viewBox="0 0 560 260" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
-      {/* Carriage bed */}
-      <rect x="90" y="108" width="340" height="42" rx="1" fill="#0C0C0C"/>
-      <rect x="90" y="108" width="340" height="5"  rx="1" fill="#0C0C0C" opacity=".45"/>
+    <svg viewBox="0 0 560 240" fill="none" style={{ width: "100%" }}>
       {/* Frame rails */}
-      <rect x="82" y="150" width="356" height="4" fill="#0C0C0C" opacity=".14"/>
-      {/* Front leg */}
-      <rect x="98"  y="154" width="11" height="78" fill="#0C0C0C"/>
-      <rect x="78"  y="226" width="51" height="6"  fill="#0C0C0C"/>
-      {/* Rear leg */}
-      <rect x="411" y="154" width="11" height="78" fill="#0C0C0C"/>
-      <rect x="391" y="226" width="51" height="6"  fill="#0C0C0C"/>
+      <rect x="60" y="132" width="440" height="7" rx="3.5" fill="#0C0C0C" opacity="0.14" />
+      <rect x="60" y="145" width="440" height="6" rx="3" fill="#0C0C0C" opacity="0.09" />
+      {/* Carriage */}
+      <rect x="160" y="90" width="240" height="54" rx="2" fill="#DDD9D3" opacity="0.6" />
+      <rect x="160" y="90" width="240" height="22" rx="2" fill={colorHex} opacity="0.72" />
+      <rect x="160" y="90" width="240" height="0.5" fill="#0C0C0C" opacity="0.2" />
+      <line x1="160" y1="112" x2="400" y2="112" stroke="#0C0C0C" strokeWidth="0.5" opacity="0.12" />
+      {/* Shoulder blocks */}
+      <rect x="366" y="90" width="14" height="22" rx="2" fill="#C8C4BE" opacity="0.7" />
+      <rect x="384" y="90" width="14" height="22" rx="2" fill="#C0BCB8" opacity="0.6" />
+      {/* Spring bracket */}
+      <rect x="60" y="124" width="18" height="32" rx="2" fill="#C8C4BE" opacity="0.55" />
+      {/* Spring paths */}
+      <path d="M78 130 C92 130 92 146 106 146 C120 146 120 130 134 130 C148 130 148 146 160 146" stroke="#B8B4AE" strokeWidth="1.5" fill="none" />
+      <path d="M78 138 C92 138 92 150 106 150 C120 150 120 138 134 138 C148 138 148 150 160 150" stroke="#B0ACA8" strokeWidth="1" fill="none" opacity="0.5" />
+      {/* Footbar post */}
+      <rect x="152" y="70" width="6" height="92" rx="3" fill="#C4C0BB" opacity="0.65" />
+      {/* Footbar rails */}
+      <rect x="128" y="80" width="26" height="5" rx="2.5" fill="#B8B4AF" opacity="0.6" />
+      <rect x="128" y="96" width="26" height="5" rx="2.5" fill="#B8B4AF" opacity="0.6" />
+      <rect x="128" y="112" width="26" height="5" rx="2.5" fill="#B8B4AF" opacity="0.6" />
       {/* Headrest */}
-      <rect x="94" y="92" width="65" height="18" rx="2" fill="#0C0C0C" opacity=".6"/>
-      {/* Footbar vertical */}
-      <rect x="449" y="70" width="7"  height="84" fill="#0C0C0C" opacity=".45"/>
-      {/* Footbar horizontal */}
-      <rect x="437" y="70" width="27" height="6"  rx="2" fill="#0C0C0C" opacity=".32"/>
-      {/* Top surface line */}
-      <rect x="90" y="108" width="340" height="0.5" fill="#0C0C0C" opacity=".55"/>
-      {/* Elastic band anchors */}
-      {[138, 168, 198].map(x => <rect key={x} x={x} y="154" width="8" height="18" rx="4" fill="#0C0C0C" opacity=".28"/>)}
-      {[282, 312, 342].map(x => <rect key={x} x={x} y="154" width="8" height="18" rx="4" fill="#0C0C0C" opacity=".28"/>)}
-      {/* Band curves (simplified) */}
-      <path d="M146 154 Q146 136 160 130 Q174 124 188 130 Q202 136 202 154" stroke="#0C0C0C" strokeWidth="1" fill="none" opacity=".2"/>
-      <path d="M290 154 Q290 136 304 130 Q318 124 332 130 Q346 136 346 154" stroke="#0C0C0C" strokeWidth="1" fill="none" opacity=".2"/>
+      <rect x="156" y="74" width="70" height="18" rx="2" fill="#DCD8D3" opacity="0.8" />
+      <rect x="160" y="75" width="62" height="12" rx="1" fill={colorHex} opacity="0.85" />
+      {/* Legs */}
+      <rect x="72" y="151" width="8" height="68" rx="4" fill="#C8C5C0" opacity="0.55" />
+      <rect x="52" y="217" width="48" height="5" rx="2.5" fill="#BDBAB5" opacity="0.5" />
+      <rect x="168" y="151" width="8" height="68" rx="4" fill="#C4C1BC" opacity="0.5" />
+      <rect x="148" y="217" width="48" height="5" rx="2.5" fill="#BDBAB5" opacity="0.45" />
+      <rect x="382" y="151" width="8" height="68" rx="4" fill="#C4C1BC" opacity="0.5" />
+      <rect x="362" y="217" width="48" height="5" rx="2.5" fill="#BDBAB5" opacity="0.45" />
+      <rect x="478" y="151" width="8" height="68" rx="4" fill="#C8C5C0" opacity="0.55" />
+      <rect x="458" y="217" width="48" height="5" rx="2.5" fill="#BDBAB5" opacity="0.5" />
     </svg>
   );
 }
 
 export default function TheAirPage() {
-  const [color,    setColor]    = useState(COLORS[0]);
-  const [frame,    setFrame]    = useState(FRAMES[0]);
-  const [bundle,   setBundle]   = useState(BUNDLES[0]);
-  const [coaching, setCoaching] = useState(false);
-  const [openFaq,  setOpenFaq]  = useState<string | null>(null);
-  const [ctaOn,    setCtaOn]    = useState(false);
-
-  const total = bundle.base + frame.delta;
+  const [upholstery, setUpholstery] = useState(UPHOLSTERY[0]);
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
+  const [ctaOn, setCtaOn] = useState(false);
 
   useEffect(() => {
-    const fn = () => setCtaOn(window.scrollY > 80);
+    const fn = () => setCtaOn(window.scrollY > 120);
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const light = {
-    bg:     "var(--paper)",
-    border: "rgba(12,12,12,0.08)",
-    text:   "var(--obsidian)",
-    sub:    "var(--ash)",
-    iron:   "rgba(12,12,12,0.1)",
-    grid:   "rgba(0,0,0,0.015)",
-  };
+  const paper = "var(--paper)";
+  const obs   = "var(--obsidian)";
+  const ash   = "var(--ash)";
+  const iron  = "rgba(12,12,12,0.08)";
+  const sec   = (c: string) => `0.5px solid ${c}`;
 
   return (
-    <>
-      <div style={{ paddingTop: "var(--nav-h)", display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+    <div style={{ background: paper, color: obs }}>
 
-        {/* ── LEFT: sticky visual ── */}
-        <div style={{
-          position: "sticky", top: "var(--nav-h)",
-          height: "calc(100vh - var(--nav-h))", alignSelf: "start",
-          background: light.bg, borderRight: `0.5px solid ${light.border}`,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center", overflow: "hidden",
-        }}>
-          <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: `repeating-linear-gradient(0deg,transparent,transparent 79px,${light.grid} 79px,${light.grid} 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,${light.grid} 79px,${light.grid} 80px)` }}/>
-          <div style={{ position: "absolute", inset: 0, background: color.hex, mixBlendMode: "color", opacity: 0.14, pointerEvents: "none", transition: "background 280ms var(--ease)" }}/>
-          <div style={{ position: "relative", width: "70%", maxWidth: 420, zIndex: 2 }}>
-            <AirSVG/>
-          </div>
-          <div style={{ position: "absolute", bottom: 40, left: 0, right: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-end", padding: "0 40px", zIndex: 3 }}>
-            <div>
-              <div style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.sub }}>lyne / the air</div>
-              <div style={{ fontSize: 13, color: light.text, marginTop: 4 }}>{color.name}</div>
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              {[0, 1, 2].map(i => <div key={i} style={{ width: 4, height: 4, borderRadius: "50%", background: i === 0 ? light.text : light.border }}/>)}
-            </div>
+      {/* ── HERO ── */}
+      <section style={{ paddingTop: "var(--nav-h)", minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden", borderBottom: sec(iron) }}>
+        <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(0,0,0,.012) 79px,rgba(0,0,0,.012) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(0,0,0,.012) 79px,rgba(0,0,0,.012) 80px)", pointerEvents: "none" }} />
+
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "80px var(--g) 60px", position: "relative", zIndex: 1 }}>
+          <div style={{ width: "min(860px, 90%)" }}>
+            <AirSVG colorHex={upholstery.hex} />
           </div>
         </div>
 
-        {/* ── RIGHT: config ── */}
-        <div style={{ padding: "56px 64px 160px", background: light.bg }}>
-
-          {/* Bundle switcher */}
-          <div style={{ display: "flex", border: `0.5px solid ${light.iron}`, marginBottom: 48 }}>
-            {BUNDLES.map((b, i) => (
-              <button key={b.id} onClick={() => setBundle(b)} style={{
-                flex: 1, height: 44, display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer",
-                border: "none", borderRight: i === 0 ? `0.5px solid ${light.iron}` : "none",
-                background: bundle.id === b.id ? "var(--obsidian)" : "transparent",
-                color: bundle.id === b.id ? "var(--paper)" : light.sub,
-                transition: "background 200ms, color 200ms",
-              }}>{b.label}</button>
-            ))}
-          </div>
-
-          <div style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.sub, marginBottom: 12 }}>the air</div>
-          <h1 style={{ fontSize: "clamp(26px,2.6vw,36px)", fontWeight: 300, lineHeight: 1.1, textTransform: "lowercase", color: light.text, marginBottom: 14 }}>
-            {bundle.id === "standard" ? "elastic band reformer" : "the air studio bundle"}
-          </h1>
-          <p style={{ fontSize: 13, lineHeight: 1.85, color: light.sub, maxWidth: 360, marginBottom: 28 }}>
-            {bundle.id === "standard"
-              ? "Precision elastic resistance. No motor, no Bluetooth — just pure, joint-friendly tension at every position."
-              : "Everything in Standard — plus short box, balance disc, and our premium 5-band resistance set."}
-          </p>
-          <div style={{ fontSize: 28, fontWeight: 300, color: light.text }}>
-            <span style={{ fontSize: 11, letterSpacing: ".04em", textTransform: "uppercase", color: light.sub, marginRight: 8 }}>from</span>
-            {fmt(total)}
-          </div>
-
-          <div style={{ height: "0.5px", background: light.iron, margin: "36px 0" }}/>
-
-          {/* Color */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.sub }}>Upholstery</span>
-              <span style={{ fontSize: 13, color: light.text }}>{color.name}</span>
-            </div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {COLORS.map(c => (
-                <div key={c.name} onClick={() => setColor(c)} title={c.name} style={{
-                  width: 30, height: 30, borderRadius: "50%", background: c.hex, cursor: "pointer",
-                  boxShadow: color.name === c.name ? `0 0 0 3.5px ${light.iron}, 0 0 0 5px ${light.text}` : "none",
-                  transform: color.name === c.name ? "scale(1.14)" : "scale(1)",
-                  transition: "transform 120ms, box-shadow 120ms",
-                }}/>
-              ))}
-            </div>
-          </div>
-
-          {/* Frame */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.sub }}>Frame Finish</span>
-              <span style={{ fontSize: 13, color: light.text }}>{frame.name}</span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {FRAMES.map(f => (
-                <button key={f.name} onClick={() => setFrame(f)} style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  height: 50, padding: "0 18px", cursor: "pointer", textAlign: "left",
-                  border: `0.5px solid ${frame.name === f.name ? light.text : light.iron}`,
-                  background: frame.name === f.name ? "rgba(12,12,12,0.03)" : "transparent",
-                  color: light.text, fontSize: 13,
-                  transition: "border-color 150ms, background 150ms",
-                }}>
-                  <span>{f.name}</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <span style={{ fontSize: 11, color: light.sub, letterSpacing: ".04em", textTransform: "uppercase" }}>
-                      {f.delta === 0 ? "Included" : `+ ${fmt(f.delta)}`}
-                    </span>
-                    <div style={{
-                      width: 15, height: 15, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                      border: `0.5px solid ${frame.name === f.name ? light.text : light.iron}`,
-                      background: frame.name === f.name ? light.text : "transparent",
-                      transition: "border-color 150ms, background 150ms",
-                    }}>
-                      {frame.name === f.name && <div style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--paper)" }}/>}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Coaching */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.sub }}>Training</span>
-              <span style={{ fontSize: 13, color: light.text }}>{coaching ? "AI Trainer" : "Free access"}</span>
-            </div>
-            <div style={{ border: `0.5px solid ${coaching ? light.text : light.iron}`, padding: 28, transition: "border-color 300ms" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                <span style={{ fontSize: 13, letterSpacing: ".12em", textTransform: "uppercase", color: light.text }}>AI Trainer</span>
-                <div onClick={() => setCoaching(v => !v)} style={{
-                  width: 44, height: 24, borderRadius: 12, cursor: "pointer", position: "relative",
-                  background: coaching ? light.text : light.iron,
-                  border: `0.5px solid ${coaching ? light.text : light.sub}`,
-                  transition: "background 200ms",
-                }}>
-                  <div style={{
-                    position: "absolute", top: 3, left: 3, width: 16, height: 16, borderRadius: "50%",
-                    background: coaching ? "var(--paper)" : light.sub,
-                    transform: coaching ? "translateX(20px)" : "none",
-                    transition: "transform 200ms, background 200ms",
-                  }}/>
-                </div>
-              </div>
-              <div style={{ fontSize: 9, letterSpacing: ".06em", textTransform: "uppercase", background: "#253627", color: "#A8C8AA", padding: "3px 8px", display: "inline-block", marginBottom: 16 }}>Phase 2</div>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-                {["Personalised sessions for your programme", "Elastic resistance cues and band selection", "Progress tracking and weekly check-ins", "Real-time audio coaching"].map(f => (
-                  <li key={f} style={{ fontSize: 13, color: light.sub, display: "flex", gap: 10 }}>
-                    <span style={{ color: light.iron, flexShrink: 0 }}>—</span>{f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div style={{ height: "0.5px", background: light.iron, margin: "36px 0" }}/>
-
-          {/* Specs */}
+        <div style={{ position: "relative", zIndex: 2, borderTop: sec(iron), display: "grid", gridTemplateColumns: "1fr 1fr", padding: "32px var(--g) 48px", gap: 48 }}>
           <div>
-            <div style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.sub, marginBottom: 16 }}>Specifications</div>
-            {SPECS.map(([k, v]) => (
-              <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 48, borderTop: `0.5px solid ${light.iron}` }}>
-                <span style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.sub }}>{k}</span>
-                <span style={{ fontSize: 13, color: light.text }}>{v}</span>
-              </div>
-            ))}
-            <div style={{ height: "0.5px", background: light.iron }}/>
+            <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: ash, marginBottom: 14 }}>Flex Air — Sensol</div>
+            <h1 style={{ fontSize: "clamp(40px,5.5vw,70px)", fontWeight: 300, lineHeight: 1.03, textTransform: "lowercase", letterSpacing: "-0.015em", color: obs }}>the air.</h1>
+            <p style={{ fontSize: 14, lineHeight: 1.85, color: ash, marginTop: 18, maxWidth: 380 }}>Spring-based elastic resistance. Five-spring system. Four levels. The complete Pilates method in the lightest possible frame.</p>
           </div>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-end", gap: 18 }}>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 10, letterSpacing: "0.07em", textTransform: "uppercase", color: ash }}>from</div>
+              <div style={{ fontSize: 36, fontWeight: 300, color: obs, marginTop: 4 }}>{fmt(55000)}</div>
+            </div>
+            <Link href="/pilates" style={{ display: "inline-flex", alignItems: "center", height: 50, padding: "0 30px", background: obs, color: paper, fontSize: 11, letterSpacing: "0.07em", textTransform: "uppercase", textDecoration: "none" }}>
+              Configure Yours →
+            </Link>
+          </div>
+        </div>
+      </section>
 
-          <div style={{ height: "0.5px", background: light.iron, marginTop: 36 }}/>
+      {/* ── STATEMENT ── */}
+      <section style={{ padding: "104px var(--g)", borderBottom: sec(iron) }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 80, alignItems: "end" }}>
+          <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: ash, lineHeight: 1.8 }}>
+            The spring-resistance reformer<br />built for the Egyptian home.
+          </div>
+          <blockquote style={{ fontSize: "clamp(22px,3.2vw,44px)", fontWeight: 300, lineHeight: 1.22, letterSpacing: "-0.01em", color: obs }}>
+            Precision without complexity.<br />The complete Pilates method<br />without a single wire.
+          </blockquote>
+        </div>
+      </section>
 
-          {/* FAQs */}
-          {FAQS.map(faq => (
-            <div key={faq.id} style={{ borderBottom: `0.5px solid ${light.iron}` }}>
-              <div
-                onClick={() => setOpenFaq(openFaq === faq.id ? null : faq.id)}
-                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 52, cursor: "pointer" }}
-              >
-                <span style={{ fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.text }}>{faq.title}</span>
-                <span style={{ fontSize: 20, fontWeight: 300, color: light.sub, display: "inline-block", transform: openFaq === faq.id ? "rotate(45deg)" : "none", transition: "transform 300ms var(--ease)" }}>+</span>
+      {/* ── WHAT YOU ACHIEVE ── */}
+      <section style={{ borderBottom: sec(iron) }}>
+        <div style={{ padding: "64px var(--g) 48px", borderBottom: sec(iron), display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: ash, marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ width: 24, height: "0.5px", background: ash, display: "inline-block" }} />what you can achieve
+            </div>
+            <h2 style={{ fontSize: "clamp(26px,3vw,42px)", fontWeight: 300, color: obs }}>The complete classical method.<br />Every movement. Every level.</h2>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)" }}>
+          {MOVEMENTS.map((m, i) => (
+            <div key={m.name} style={{ padding: "44px 40px 52px", borderRight: (i + 1) % 4 !== 0 ? sec(iron) : "none", borderBottom: i < 4 ? sec(iron) : "none" }}>
+              <div style={{ fontSize: 10, letterSpacing: "0.08em", color: ash, marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 10, height: "0.5px", background: ash, display: "inline-block" }} />
+                {String(i + 1).padStart(2, "0")}
               </div>
-              <div style={{ maxHeight: openFaq === faq.id ? 300 : 0, overflow: "hidden", transition: "max-height 400ms var(--ease)" }}>
-                <p style={{ paddingBottom: 20, fontSize: 13, lineHeight: 1.85, color: light.sub, maxWidth: 400 }}>{faq.body}</p>
-              </div>
+              <h3 style={{ fontSize: 17, fontWeight: 300, color: obs, marginBottom: 14, textTransform: "lowercase", lineHeight: 1.2 }}>{m.name}</h3>
+              <p style={{ fontSize: 12, lineHeight: 1.9, color: ash }}>{m.desc}</p>
             </div>
           ))}
         </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: sec(iron) }}>
+          {[
+            { stat: "120kg",  label: "Max load capacity" },
+            { stat: "5",      label: "Spring resistance levels" },
+            { stat: "870mm",  label: "Full carriage travel" },
+            { stat: "44kg",   label: "Machine weight" },
+          ].map((s, i) => (
+            <div key={s.stat} style={{ padding: "44px 40px", borderRight: i < 3 ? sec(iron) : "none" }}>
+              <div style={{ fontSize: "clamp(32px,4vw,56px)", fontWeight: 300, color: obs, lineHeight: 1, marginBottom: 10 }}>{s.stat}</div>
+              <div style={{ fontSize: 11, letterSpacing: "0.07em", textTransform: "uppercase", color: ash }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── MATERIALS ── */}
+      <section style={{ borderBottom: sec(iron) }}>
+        <div style={{ padding: "64px var(--g) 48px", borderBottom: sec(iron) }}>
+          <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: ash, marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ width: 24, height: "0.5px", background: ash, display: "inline-block" }} />materials & construction
+          </div>
+          <h2 style={{ fontSize: "clamp(26px,3vw,42px)", fontWeight: 300, color: obs }}>Light enough to move.<br />Rigid enough to last decades.</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)" }}>
+          {MATERIALS.map((m, i) => (
+            <div key={m.label} style={{ padding: "52px 40px 60px", borderRight: i < 3 ? sec(iron) : "none" }}>
+              <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: ash, marginBottom: 22 }}>{m.label}</div>
+              <div style={{ fontSize: 18, fontWeight: 300, color: obs, marginBottom: 6, lineHeight: 1.25 }}>{m.material}</div>
+              <div style={{ fontSize: 10, letterSpacing: "0.07em", textTransform: "uppercase", color: ash, marginBottom: 24, paddingBottom: 24, borderBottom: sec(iron) }}>{m.spec}</div>
+              <p style={{ fontSize: 12, lineHeight: 1.95, color: ash }}>{m.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── SPECS ── */}
+      <section style={{ borderBottom: sec(iron) }}>
+        <div style={{ padding: "64px var(--g) 48px", borderBottom: sec(iron) }}>
+          <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: ash, marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ width: 24, height: "0.5px", background: ash, display: "inline-block" }} />technical specifications
+          </div>
+          <h2 style={{ fontSize: "clamp(26px,3vw,42px)", fontWeight: 300, color: obs }}>Every number, stated precisely.</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+          {SPECS.map(([k, v], i) => (
+            <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "22px 40px", borderBottom: sec(iron), borderRight: i % 2 === 0 ? sec(iron) : "none", gap: 16 }}>
+              <span style={{ fontSize: 10, letterSpacing: "0.07em", textTransform: "uppercase", color: ash, flexShrink: 0 }}>{k}</span>
+              <span style={{ fontSize: 13, color: obs, textAlign: "right" }}>{v}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CONFIGURE TEASER ── */}
+      <section style={{ borderBottom: sec(iron) }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+          <div style={{ padding: "72px 40px", borderRight: sec(iron), display: "flex", flexDirection: "column", justifyContent: "center", gap: 28, background: "var(--cement)", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(0,0,0,.009) 79px,rgba(0,0,0,.009) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(0,0,0,.009) 79px,rgba(0,0,0,.009) 80px)", pointerEvents: "none" }} />
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <AirSVG colorHex={upholstery.hex} />
+            </div>
+            <div style={{ position: "relative", zIndex: 1, fontSize: 11, letterSpacing: "0.07em", textTransform: "uppercase", color: ash, textAlign: "center" }}>{upholstery.name} Upholstery</div>
+          </div>
+          <div style={{ padding: "72px 40px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 36 }}>
+            <div>
+              <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: ash, marginBottom: 16 }}>Make it yours</div>
+              <h2 style={{ fontSize: "clamp(22px,2.5vw,36px)", fontWeight: 300, lineHeight: 1.2, color: obs, marginBottom: 16 }}>Five colorways. Three frame finishes. Built to your spec.</h2>
+              <p style={{ fontSize: 13, lineHeight: 1.85, color: ash, maxWidth: 360 }}>Every Air is built to order. White-glove delivery and in-home assembly within 7–10 business days. Our team positions it before they leave.</p>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: ash, marginBottom: 14 }}>Upholstery colorway</div>
+              <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 32 }}>
+                {UPHOLSTERY.map(c => (
+                  <div key={c.name} onClick={() => setUpholstery(c)} title={c.name}
+                    style={{ width: 26, height: 26, borderRadius: "50%", background: c.hex, cursor: "pointer", flexShrink: 0, transition: "all 120ms", boxShadow: upholstery.name === c.name ? `0 0 0 2.5px ${paper}, 0 0 0 4.5px ${obs}` : "none", transform: upholstery.name === c.name ? "scale(1.12)" : "scale(1)" }}
+                    onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.15)")}
+                    onMouseLeave={e => (e.currentTarget.style.transform = upholstery.name === c.name ? "scale(1.12)" : "scale(1)")}
+                  />
+                ))}
+                <span style={{ fontSize: 11, color: ash, marginLeft: 4 }}>{upholstery.name}</span>
+              </div>
+              <Link href="/pilates" style={{ display: "inline-flex", alignItems: "center", height: 50, padding: "0 28px", background: obs, color: paper, fontSize: 11, letterSpacing: "0.07em", textTransform: "uppercase", textDecoration: "none" }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.8")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >
+                Build Your Air →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section style={{ borderBottom: sec(iron) }}>
+        <div style={{ padding: "64px var(--g) 48px", borderBottom: sec(iron) }}>
+          <div style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: ash, marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ width: 24, height: "0.5px", background: ash, display: "inline-block" }} />before you order
+          </div>
+          <h2 style={{ fontSize: "clamp(26px,3vw,42px)", fontWeight: 300, color: obs }}>Common questions.</h2>
+        </div>
+        {FAQS.map(faq => (
+          <div key={faq.id} style={{ borderBottom: sec(iron) }}>
+            <div onClick={() => setOpenFaq(openFaq === faq.id ? null : faq.id)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 72, padding: "0 var(--g)", cursor: "pointer" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(12,12,12,0.02)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+            >
+              <span style={{ fontSize: 15, fontWeight: 300, color: obs }}>{faq.title}</span>
+              <span style={{ fontSize: 22, fontWeight: 300, color: ash, display: "inline-block", transform: openFaq === faq.id ? "rotate(45deg)" : "none", transition: "transform 280ms var(--ease)", flexShrink: 0 }}>+</span>
+            </div>
+            <div style={{ maxHeight: openFaq === faq.id ? 300 : 0, overflow: "hidden", transition: "max-height 380ms var(--ease)" }}>
+              <p style={{ padding: "0 var(--g) 32px", fontSize: 14, lineHeight: 1.9, color: ash, maxWidth: 560 }}>{faq.body}</p>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* ── STICKY CTA ── */}
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, height: 68, background: "rgba(250,250,248,0.94)", borderTop: sec(iron), backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 var(--g)", zIndex: 400, transform: ctaOn ? "translateY(0)" : "translateY(100%)", transition: "transform 320ms var(--ease)" }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 300, color: obs }}>The Air — Flex Air Sensol</div>
+          <div style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: ash, marginTop: 3 }}>from {fmt(55000)} · 5 colorways · 3 finishes</div>
+        </div>
+        <Link href="/pilates" style={{ height: 44, padding: "0 28px", background: obs, color: paper, fontSize: 11, letterSpacing: "0.07em", textTransform: "uppercase", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+          Configure Yours →
+        </Link>
       </div>
 
-      {/* Sticky CTA */}
-      <div style={{
-        position: "fixed", bottom: 0, left: 0, right: 0, height: 72,
-        background: "var(--paper)", borderTop: `0.5px solid ${light.iron}`,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 var(--g)", zIndex: 400,
-        transform: ctaOn ? "translateY(0)" : "translateY(100%)",
-        transition: "transform 300ms var(--ease)",
-      }}>
-        <div>
-          <div style={{ fontSize: 13, color: light.text }}>The Air · {bundle.label}</div>
-          <div style={{ fontSize: 11, letterSpacing: ".04em", textTransform: "uppercase", color: light.sub, marginTop: 2 }}>{color.name} · {frame.name}</div>
-        </div>
-        <div style={{ fontSize: 20, fontWeight: 300, color: light.text }}>{fmt(total)}</div>
-        <div style={{ display: "flex", gap: 16 }}>
-          <button style={{ height: 44, padding: "0 28px", border: `0.5px solid ${light.iron}`, background: "transparent", fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: light.text, cursor: "pointer" }}>Save</button>
-          <button style={{ height: 44, padding: "0 36px", border: "none", background: "var(--obsidian)", fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--sand)", cursor: "pointer" }}>Add to Cart →</button>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

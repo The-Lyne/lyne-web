@@ -7,7 +7,7 @@ export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -26,9 +26,16 @@ export default function Nav() {
         justifyContent: "space-between",
         zIndex: 300,
         pointerEvents: "none",
-        transition: "background 300ms",
-        background: scrolled ? "rgba(12,12,12,0.72)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
+        background: scrolled
+          ? "rgba(10,10,10,0.86)"
+          : "rgba(10,10,10,0.28)",
+        backdropFilter: "blur(18px)",
+        WebkitBackdropFilter: "blur(18px)",
+        borderBottom: scrolled
+          ? "0.5px solid rgba(255,255,255,0.07)"
+          : "0.5px solid rgba(255,255,255,0.04)",
+        transition:
+          "background 380ms cubic-bezier(0.16,1,0.3,1), border-color 380ms cubic-bezier(0.16,1,0.3,1)",
       }}
     >
       <style>{`nav * { pointer-events: all; }`}</style>
@@ -42,8 +49,8 @@ export default function Nav() {
           letterSpacing: "0.28em",
           textTransform: "uppercase",
           textDecoration: "none",
-          color: "white",
-          mixBlendMode: scrolled ? "normal" : "difference",
+          color: "rgba(255,255,255,0.9)",
+          flexShrink: 0,
         }}
       >
         Lyne
@@ -53,21 +60,20 @@ export default function Nav() {
       <ul
         style={{
           display: "flex",
-          gap: 40,
+          gap: 36,
           listStyle: "none",
           position: "absolute",
           left: "50%",
           transform: "translateX(-50%)",
+          whiteSpace: "nowrap",
         }}
       >
         {[
-          { label: "The Pro", href: "/the-pro" },
-          { label: "The Air", href: "/the-air" },
-          { label: "Bench", href: "/bench" },
-          { label: "Pilates", href: "/pilates" },
+          { label: "Bench",      href: "/bench" },
+          { label: "Pilates",    href: "/pilates" },
           { label: "Essentials", href: "/essentials" },
-          { label: "Training", href: "/training" },
-          { label: "Journal", href: "/journal" },
+          { label: "Training",   href: "/training" },
+          { label: "Journal",    href: "/journal" },
         ].map((link) => (
           <li key={link.href}>
             <Link
@@ -75,16 +81,18 @@ export default function Nav() {
               style={{
                 fontSize: 11,
                 fontWeight: 400,
-                letterSpacing: "0.06em",
+                letterSpacing: "0.07em",
                 textTransform: "uppercase",
                 textDecoration: "none",
-                color: "white",
-                mixBlendMode: scrolled ? "normal" : "difference",
-                transition: "opacity 150ms",
-                opacity: 1,
+                color: "rgba(255,255,255,0.6)",
+                transition: "color 150ms",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.45")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "rgba(255,255,255,1)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "rgba(255,255,255,0.6)")
+              }
             >
               {link.label}
             </Link>
@@ -93,10 +101,17 @@ export default function Nav() {
       </ul>
 
       {/* Right links */}
-      <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 28,
+          alignItems: "center",
+          flexShrink: 0,
+        }}
+      >
         {[
           { label: "Account", href: "/account" },
-          { label: "Cart (0)", href: "/cart" },
+          { label: "Cart",    href: "/cart" },
         ].map((link) => (
           <Link
             key={link.href}
@@ -104,15 +119,18 @@ export default function Nav() {
             style={{
               fontSize: 11,
               fontWeight: 400,
-              letterSpacing: "0.06em",
+              letterSpacing: "0.07em",
               textTransform: "uppercase",
               textDecoration: "none",
-              color: "white",
-              mixBlendMode: scrolled ? "normal" : "difference",
-              transition: "opacity 150ms",
+              color: "rgba(255,255,255,0.6)",
+              transition: "color 150ms",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.45")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.color = "rgba(255,255,255,1)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.color = "rgba(255,255,255,0.6)")
+            }
           >
             {link.label}
           </Link>
