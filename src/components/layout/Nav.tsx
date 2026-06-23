@@ -63,6 +63,8 @@ export default function Nav() {
         {[
           { label: "The Pro", href: "/the-pro" },
           { label: "The Air", href: "/the-air" },
+          { label: "Bench", href: "/bench" },
+          { label: "Pilates", href: "/pilates" },
           { label: "Essentials", href: "/essentials" },
           { label: "Training", href: "/training" },
           { label: "Journal", href: "/journal" },
