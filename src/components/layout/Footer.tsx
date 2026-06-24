@@ -56,7 +56,7 @@ export default function Footer() {
             style={{
               fontSize: 13,
               fontWeight: 300,
-              letterSpacing: "0.28em",
+              letterSpacing: "0.36em",
               textTransform: "uppercase",
               textDecoration: "none",
               color: "var(--sand)",

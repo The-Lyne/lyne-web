@@ -46,7 +46,7 @@ export default function Nav() {
         style={{
           fontSize: 13,
           fontWeight: 300,
-          letterSpacing: "0.28em",
+          letterSpacing: "0.36em",
           textTransform: "uppercase",
           textDecoration: "none",
           color: "rgba(255,255,255,0.9)",
